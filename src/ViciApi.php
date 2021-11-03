@@ -98,7 +98,14 @@ class ViciApi
         }
 
         $bodyHash = base64_encode(hash('sha256', $body, true));
-        $messages = [$method, $path, '', $accessToken, $timestamp, $bodyHash];
+
+        if ('GET' == $method && strpos($path, '?')) {
+            $path = explode('?', $path);
+            $messages = [$method, $path[0], $path[1], $accessToken, $timestamp, $bodyHash];
+        } else {
+            $messages = [$method, $path, '', $accessToken, $timestamp, $bodyHash];
+        }
+
         $stringToSign = implode(':', $messages);
         $signature = base64_encode(hash_hmac('sha256', $stringToSign, $this->signingKey, true));
 
